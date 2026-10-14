@@ -135,7 +135,7 @@
       // 需要下載的模型檔案：tinyFaceDetectorModel (人臉偵測), faceExpressionModel (表情分析)
       // 注意：GitHub Pages 需要上傳對應的模型權限檔 (.weights, .json)
       // 本範例假設模型檔放置在專案目錄下的 /models 資料夾內
-      const MODEL_URL = './models'; 
+      const MODEL_URL = 'https://cdn.jsdelivr.net/gh/cbrandolino/cam-emotion@master/models'; 
       try {
         await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
         await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
