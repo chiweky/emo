@@ -112,10 +112,6 @@
       happy: { emoji: '😀', text: '開心/微笑' },
       sad: { emoji: '😢', text: '難過/悲傷' },
       angry: { emoji: '😡', text: '生氣/憤怒' },
-      fearful: { emoji: '😱', text: '害怕/恐懼' },
-      surprised: { emoji: '😮', text: '驚訝/吃驚' },
-      disgusted: { emoji: '🤢', text: '厭惡/反感' },
-      neutral: { emoji: '😐', text: '自然/平靜' }
     };
 
     // 取得 HTML 元素
@@ -132,7 +128,7 @@
 
     // 2. 載入必要的 AI 模型 (改用穩定 CDN)
     async function loadModels() {
-      const MODEL_URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'; 
+      const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.15/model/'; 
       try {
         await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
         await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
