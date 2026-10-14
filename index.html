@@ -107,7 +107,7 @@
   </div>
 
   <script type="module">
-    // 1. 定義表情與 Emoji 的映射表 (對應 face-api.js 的 7 種情绪)
+    // 1. 定義表情與 Emoji 的映射表 (修正語法錯誤)
     const EMOJI_MAP = {
       happy: { emoji: '😀', text: '開心/微笑' },
       sad: { emoji: '😢', text: '難過/悲傷' },
@@ -115,7 +115,7 @@
       fearful: { emoji: '😱', text: '害怕/恐懼' },
       surprised: { emoji: '😮', text: '驚訝/吃驚' },
       disgusted: { emoji: '🤢', text: '厭惡/反感' },
-      
+      neutral: { emoji: '😐', text: '自然/平靜' }
     };
 
     // 取得 HTML 元素
@@ -130,12 +130,9 @@
     const resultTextValue = document.getElementById("result-text-value");
     const noFaceText = document.getElementById("no-face-detected");
 
-    // 2. 載入必要的 AI 模型
+    // 2. 載入必要的 AI 模型 (改用穩定 CDN)
     async function loadModels() {
-      // 需要下載的模型檔案：tinyFaceDetectorModel (人臉偵測), faceExpressionModel (表情分析)
-      // 注意：GitHub Pages 需要上傳對應的模型權限檔 (.weights, .json)
-      // 本範例假設模型檔放置在專案目錄下的 /models 資料夾內
-      const MODEL_URL = 'https://cdn.jsdelivr.net/gh/cbrandolino/cam-emotion@master/models'; 
+      const MODEL_URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights'; 
       try {
         await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
         await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
@@ -143,7 +140,7 @@
         modelLoadingMask.style.display = 'none'; // 隱藏載入遮罩
       } catch (e) {
         console.error("Model Error:", e);
-        alert("模型載入失敗，請確認 /models 資料夾內有對應的模型檔案。");
+        alert("模型載入失敗，請確認網路連線是否正常。");
         modelLoadingMask.querySelector('h3').innerText = "模型載入失敗";
         modelLoadingMask.querySelector('p').innerText = e;
       }
@@ -167,27 +164,30 @@
 
         // 等待圖片完全載入
         previewImg.onload = async () => {
-          // 4. 開始表情辨識
-          // 使用 Tiny Face Detector (適合手機端) 並請求表情數據
-          const detection = await faceapi.detectSingleFace(previewImg, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
+          try {
+            // 4. 開始表情辨識
+            const detection = await faceapi.detectSingleFace(previewImg, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
 
-          loaderText.style.display = 'none';
+            loaderText.style.display = 'none';
 
-          if (detection) {
-            // 5. 處理辨識結果
-            const expressions = detection.expressions;
-            // 找出機率最高的表情名稱
-            const dominantEmotion = Object.keys(expressions).reduce((a, b) => expressions[a] > expressions[b] ? a : b);
-            
-            // 將結果顯示出來
-            const emojiData = EMOJI_MAP[dominantEmotion];
-            if (emojiData) {
+            if (detection) {
+              // 5. 處理辨識結果
+              const expressions = detection.expressions;
+              // 找出機率最高的表情名稱
+              const dominantEmotion = Object.keys(expressions).reduce((a, b) => expressions[a] > expressions[b] ? a : b);
+              
+              // 將結果顯示出來
+              const emojiData = EMOJI_MAP[dominantEmotion] || EMOJI_MAP.neutral;
               resultEmoji.innerText = emojiData.emoji;
               resultTextValue.innerText = emojiData.text;
               resultArea.style.display = 'block';
+            } else {
+              noFaceText.style.display = 'block'; // 未偵測到人臉
             }
-          } else {
-            noFaceText.style.display = 'block'; // 未偵測到人臉
+          } catch (err) {
+            console.error("Detection Error:", err);
+            loaderText.style.display = 'none';
+            alert("辨識過程發生錯誤，請重新試一次。");
           }
         }
       };
